@@ -1,4 +1,5 @@
 import logging
+from urllib.parse import unquote_plus
 from config import STAGE_CONTRACT_SIGNED, STAGE_DELIVERY, STAGE_WAITING_DOCS
 from database import upsert_deal, set_contract_signed, set_delivery_notified, set_docs_stage
 from viber import send_viber
@@ -8,49 +9,35 @@ async def handle_webhook(data: dict):
     """Handle incoming webhook from AmoCRM"""
     try:
         logging.info(f"Processing webhook data: {data}")
-        
-        # AmoCRM sends data in format: leads[update][0][field]
-        # Extract deal data
+
         deal_id = None
         stage_id = None
         phone = None
-        name = None
-        
-        # Parse AmoCRM webhook format
-        for key, value in data.items():
-            if "leads[update][0][id]" in key or key == "leads[update][0][id]":
-                deal_id = str(value)
-            elif "leads[update][0][status_id]" in key:
-                stage_id = str(value)
-            elif "leads[update][0][name]" in key:
-                name = value
-        
-        # Try to get contact name and phone
-        for key, value in data.items():
-            if "contacts[update][0][name]" in key or "contacts[add][0][name]" in key:
-                if not name:
-                    name = value
-            if "phone" in key.lower() and value:
-                phone = value
+        name = "Клиент"
 
-        # Also check common AmoCRM webhook formats
-        if not deal_id:
-            deal_id = data.get("leads[update][0][id]") or data.get("id")
-        if not stage_id:
-            stage_id = str(data.get("leads[update][0][status_id]") or data.get("status_id", ""))
-        if not name:
-            name = data.get("leads[update][0][name]") or data.get("name", "Клиент")
-        if not phone:
-            # Search for phone in all keys
-            for key, value in data.items():
-                if "phone" in key.lower() and value and str(value).strip():
-                    phone = str(value).strip()
-                    break
+        # AmoCRM sends leads[status][0][id] format
+        for key, value in data.items():
+            k = key.strip()
+            v = str(value).strip() if value else ""
+
+            if k == "leads[status][0][id]" or k == "leads[update][0][id]" or k == "leads[add][0][id]":
+                deal_id = v
+            elif k == "leads[status][0][status_id]" or k == "leads[update][0][status_id]":
+                stage_id = v
+            elif "name" in k and "account" not in k and "subdomain" not in k:
+                if v:
+                    name = v
+            elif "phone" in k.lower() and v:
+                phone = v
 
         logging.info(f"Parsed: deal_id={deal_id}, stage_id={stage_id}, name={name}, phone={phone}")
 
-        if not deal_id or not stage_id:
-            logging.warning("Missing deal_id or stage_id, skipping")
+        if not deal_id:
+            logging.warning("Missing deal_id, skipping")
+            return
+
+        if not stage_id:
+            logging.warning("Missing stage_id, skipping")
             return
 
         if not phone:
