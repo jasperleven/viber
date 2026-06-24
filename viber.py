@@ -1,3 +1,4 @@
+import re
 import requests
 import logging
 from config import SMSTRAFFIC_LOGIN, SMSTRAFFIC_PASSWORD, SMSTRAFFIC_URL, SENDER_NAME, ROUTE
@@ -5,8 +6,8 @@ from config import SMSTRAFFIC_LOGIN, SMSTRAFFIC_PASSWORD, SMSTRAFFIC_URL, SENDER
 def send_viber(phone: str, message: str) -> bool:
     """Send Viber message via SMS Traffic API, fallback to SMS"""
     try:
-        # Format phone: remove +, spaces, dashes
-        phone_clean = phone.replace("+", "").replace(" ", "").replace("-", "")
+        # Оставляем только цифры, убираем всё лишнее: +, пробелы, тире, скобки
+        phone_clean = re.sub(r'[^\d]', '', phone)
         
         params = {
             "login": SMSTRAFFIC_LOGIN,
