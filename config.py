@@ -13,9 +13,9 @@ STAGE_DELIVERY = "85411634"          # Доставка товара
 STAGE_WAITING_DOCS = "85398474"      # Ожидаем документы
 
 # Message settings
-COMPLAINT_PHONE = "+375291234567"    # Номер рекламации (заменить на боевой)
-CONDITIONS_URL = "https://technowave.by"  # Ссылка на условия (заменить на боевую)
-SENDER_NAME = "texnowaveby"          # Имя отправителя SMS
+COMPLAINT_PHONE = "+375 (29) 102-78-85"
+CONDITIONS_URL = "https://technowave.by/oferta"
+SENDER_NAME = "texnowaveby"
 
 # Viber route: сначала Viber 24 часа, потом SMS
 ROUTE = "viber(86400)-sms"
