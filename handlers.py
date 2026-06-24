@@ -45,11 +45,8 @@ def get_contact_by_deal(deal_id: str):
         contact_data = contact_resp.json()
 
         full_name = contact_data.get("name", "Клиент")
-        first_name = contact_data.get("first_name", "").strip()
-        # Если first_name пустой — берём второе слово из full_name (имя после фамилии)
-        if not first_name:
-            parts = full_name.split()
-            first_name = parts[1] if len(parts) > 1 else parts[0] if parts else "Клиент"
+        parts = full_name.split()
+        first_name = parts[1] if len(parts) > 1 else parts[0] if parts else "Клиент"
         phone = None
 
         # Ищем телефон в custom_fields_values
