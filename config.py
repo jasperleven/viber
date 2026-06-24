@@ -3,14 +3,18 @@ SMSTRAFFIC_LOGIN = "artagedby"
 SMSTRAFFIC_PASSWORD = "b1DVlzeE"
 SMSTRAFFIC_URL = "https://sds.smstraffic.by/smartdelivery-in/multi.php"
 
+# AmoCRM settings
+AMOCRM_DOMAIN = "daangrah000.amocrm.ru"
+AMOCRM_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImFiNjY0MjhmOTE4ODE1OGNjODc4NzQ2YjBkMDM2ZjYzMTEwOGU1M2Q0ZjMwNmM3YWUzOGQxMDBiZmRmMzY2YjUxNDZlOTdhNjlhMTIzNjYyIn0.eyJhdWQiOiI3Y2NlNDZhYy0zZjdmLTQwMzItYjJhNS01OTY1Yzc1ZTc0MzUiLCJqdGkiOiJhYjY2NDI4ZjkxODgxNThjYzg3ODc0NmIwZDAzNmY2MzExMDhlNTNkNGYzMDZjN2FlMzhkMTAwYmZkZjM2NmI1MTQ2ZTk3YTY5YTEyMzY2MiIsImlhdCI6MTc4MjI5NjI3OCwibmJmIjoxNzgyMjk2Mjc4LCJleHAiOjE5NDAwMjU2MDAsInN1YiI6IjExNDY3MjU4IiwiZ3JhbnRfdHlwZSI6IiIsImFjY291bnRfaWQiOjMxOTI4Mjk4LCJiYXNlX2RvbWFpbiI6ImFtb2NybS5ydSIsInZlcnNpb24iOjIsInNjb3BlcyI6WyJwdXNoX25vdGlmaWNhdGlvbnMiLCJmaWxlcyIsImNybSIsImZpbGVzX2RlbGV0ZSIsIm5vdGlmaWNhdGlvbnMiXSwiaGFzaF91dWlkIjoiZjQ4YmIyODctMjlkOC00ZDExLWIxMTYtODE5ODI1ZWZhYTE3IiwiYXBpX2RvbWFpbiI6ImFwaS1iLmFtb2NybS5ydSJ9.jw068He1FVO8ON3bUiI1LgUiItJWz2-QKSZHLh1_qo6yGuRKlzJiSSohCaxO_ExPjwHkRBJN82igtHWluXLzhGAJ9t9_GR80cxse-9yRenMv0gJ6MBlcYN3xoP76B-BG044z3ysbhY8XfNEk7fqLueQ-LCdN7yA1AYpp2M_lzHERrwnI-bvNnzv_kMsaL2O6QlsHSZtGwHibZvLer8jmFQheu1J5yzJ2NcMKE5GdGyJrKpOtZQMJVhpQKHLX_qVuB5nFLnF1KVhUkQwDMxWecaymeazI6h4WOn8RH0Y_mALpdJKBKvSAu1xFrqNPfO_Cu7vzSumL9iVvxJpbjUjYXQ"
+
 # AmoCRM pipeline stage IDs
 STAGE_CONTRACT_SIGNED = "69561406"   # Договор подписан
 STAGE_DELIVERY = "85411634"          # Доставка товара
 STAGE_WAITING_DOCS = "85398474"      # Ожидаем документы
 
 # Message settings
-COMPLAINT_PHONE = "+375 (29) 102-78-85"
-CONDITIONS_URL = "https://technowave.by/oferta"
+COMPLAINT_PHONE = "+375291234567"    # Номер рекламации (заменить на боевой)
+CONDITIONS_URL = "https://technowave.by"  # Ссылка на условия (заменить на боевую)
 SENDER_NAME = "texnowaveby"          # Имя отправителя SMS
 
 # Viber route: сначала Viber 24 часа, потом SMS
