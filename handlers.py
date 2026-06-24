@@ -44,7 +44,12 @@ def get_contact_by_deal(deal_id: str):
 
         contact_data = contact_resp.json()
 
-        name = contact_data.get("name", "Клиент")
+        full_name = contact_data.get("name", "Клиент")
+        first_name = contact_data.get("first_name", "").strip()
+        # Если first_name пустой — берём второе слово из full_name (имя после фамилии)
+        if not first_name:
+            parts = full_name.split()
+            first_name = parts[1] if len(parts) > 1 else parts[0] if parts else "Клиент"
         phone = None
 
         # Ищем телефон в custom_fields_values
@@ -55,8 +60,8 @@ def get_contact_by_deal(deal_id: str):
                     phone = values[0].get("value")
                     break
 
-        logging.info(f"Got contact for deal {deal_id}: name={name}, phone={phone}")
-        return name, phone
+        logging.info(f"Got contact for deal {deal_id}: name={first_name}, phone={phone}")
+        return first_name, phone
 
     except Exception as e:
         logging.error(f"Error getting contact for deal {deal_id}: {e}", exc_info=True)
@@ -93,15 +98,12 @@ async def handle_webhook(data: dict):
             logging.warning("Missing deal_id or stage_id, skipping")
             return
 
-        # Получаем имя и телефон из AmoCRM API
-        name, phone = get_contact_by_deal(deal_id)
+        # Берём имя и телефон из AmoCRM API
+        first_name, phone = get_contact_by_deal(deal_id)
 
         if not phone:
             logging.warning(f"No phone found for deal {deal_id}, skipping")
             return
-
-        # Берём первое слово имени
-        first_name = name.split()[0] if name else "Клиент"
 
         # Сохраняем в БД
         upsert_deal(deal_id, phone, first_name, stage_id)
