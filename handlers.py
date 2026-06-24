@@ -71,17 +71,21 @@ async def handle_webhook(data: dict):
         deal_id = None
         stage_id = None
 
-        # Парсим формат AmoCRM вебхука
+        # Парсим формат AmoCRM вебхука (leads[update] и leads[status])
         for key, value in data.items():
-            if "leads[update][0][id]" in key or key == "leads[update][0][id]":
+            if "[id]" in key and ("leads[update][0]" in key or "leads[status][0]" in key):
                 deal_id = str(value)
-            elif "leads[update][0][status_id]" in key:
+            elif "[status_id]" in key and ("leads[update][0]" in key or "leads[status][0]" in key):
                 stage_id = str(value)
 
         if not deal_id:
-            deal_id = data.get("leads[update][0][id]") or data.get("id")
+            deal_id = (data.get("leads[update][0][id]") or
+                      data.get("leads[status][0][id]") or
+                      data.get("id"))
         if not stage_id:
-            stage_id = str(data.get("leads[update][0][status_id]") or data.get("status_id", ""))
+            stage_id = str(data.get("leads[update][0][status_id]") or
+                          data.get("leads[status][0][status_id]") or
+                          data.get("status_id", ""))
 
         logging.info(f"Parsed: deal_id={deal_id}, stage_id={stage_id}")
 
