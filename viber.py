@@ -1,7 +1,7 @@
 import re
 import requests
 import logging
-from config import SMSTRAFFIC_LOGIN, SMSTRAFFIC_PASSWORD, SMSTRAFFIC_URL, SENDER_NAME, ROUTE
+from config import SMSTRAFFIC_LOGIN, SMSTRAFFIC_PASSWORD, SMSTRAFFIC_URL, SENDER_NAME
 
 def send_viber(phone: str, viber_message: str, sms_message: str) -> bool:
     """Send Viber message via SMS Traffic API, fallback to SMS with separate text"""
@@ -14,10 +14,11 @@ def send_viber(phone: str, viber_message: str, sms_message: str) -> bool:
             "password": SMSTRAFFIC_PASSWORD,
             "phones": phone_clean,
             "message": viber_message,
-            "sms_text": sms_message,
+            "param_sms": sms_message,
+            "routeGroupId": "QX2163TgHc8nQLzKo90pwAUjfmmFTVEVld21",
             "originator": SENDER_NAME,
-            "route": ROUTE,
-            "rus": "5",
+            "want_sms_ids": "1",
+            "rus": "1",
         }
         
         response = requests.post(SMSTRAFFIC_URL, data=params, timeout=10)

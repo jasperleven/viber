@@ -1,6 +1,6 @@
 # SMS Traffic credentials
 SMSTRAFFIC_LOGIN = "artagedby"
-SMSTRAFFIC_PASSWORD = "QX2163TgHc8nQLzKo90pwAUjfmmFTVEVld21"
+SMSTRAFFIC_PASSWORD = "b1DVlzeE"
 SMSTRAFFIC_URL = "https://sds.smstraffic.by/smartdelivery-in/multi.php"
 
 # AmoCRM settings
