@@ -14,7 +14,7 @@ STAGE_WAITING_DOCS = "85398474"      # Ожидаем документы
 
 # Message settings
 COMPLAINT_PHONE = "+375 (29) 102-78-85"
-CONDITIONS_URL = "https://technowave.by/oferta"
+CONDITIONS_URL = "https://technowave.by/of"
 SENDER_NAME = "texnowaveby"
 
 # Viber route: сначала Viber 24 часа, потом SMS

@@ -9,7 +9,7 @@ def msg_contract_signed(name: str) -> str:
         f"По всем вопросам обращаться по номеру: {COMPLAINT_PHONE}\n"
         f"Ознакомиться с условиями работы: {CONDITIONS_URL}"
     )
-    sms = f"Здраствуйте! Заказ собран. Ждите дату доставки. Связь {COMPLAINT_PHONE}. Оферта: {CONDITIONS_URL}"
+    sms = f"🎉 {name}, поздравляем! Заказ в сборке, ждите дату доставки. С заботой, ТехноВейв. Вопросы {COMPLAINT_PHONE}. {CONDITIONS_URL}"
     return viber, sms
 
 def msg_delivery_reminder(name: str) -> str:
@@ -20,7 +20,7 @@ def msg_delivery_reminder(name: str) -> str:
         f"С заботой о Вас, интернет-магазин ТехноВейв.\n"
         f"📞 По всем вопросам обращаться по номеру: {COMPLAINT_PHONE}"
     )
-    sms = f"{name}, спасибо за ожидание! Заказ доставят, ждите дату. По вопросам {COMPLAINT_PHONE}"
+    sms = f"👋🏻 Здравствуйте, {name}, благодарим за ожидание! Заказ обязательно доставят, ожидайте сообщение о дате. Вопросы {COMPLAINT_PHONE}"
     return viber, sms
 
 def msg_delivery(name: str) -> str:
@@ -29,7 +29,7 @@ def msg_delivery(name: str) -> str:
         f"📞 Ожидайте звонок для согласования времени доставки. "
         f"С заботой о Вас, интернет-магазин ТехноВейв."
     )
-    sms = f"{name}, заказ передан в доставку! Ждите звонок для согласования времени. Ваш ТехноВейв."
+    sms = f"Здраствуйте, {name}! Ваш заказ передан в доставку. Ожидайте звонок для согласования времени. С заботой, ваш ТехноВейв 🚚"
     return viber, sms
 
 def msg_waiting_docs(name: str) -> str:
@@ -40,5 +40,5 @@ def msg_waiting_docs(name: str) -> str:
         f"Спасибо за доверие к нам, Ваш ТехноВейв.\n\n"
         f"📞 По всем вопросам обращаться по номеру: {COMPLAINT_PHONE}"
     )
-    sms = f"{name}, поздравляем с покупкой! График платежей в документах. Вопросы {COMPLAINT_PHONE}"
+    sms = f"✅ {name}, поздравляем Вас с покупкой! График платежей в документах. Спасибо за доверие, ТехноВейв. Вопросы {COMPLAINT_PHONE}."
     return viber, sms
