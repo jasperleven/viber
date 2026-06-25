@@ -109,20 +109,20 @@ async def handle_webhook(data: dict):
         if stage_id == STAGE_CONTRACT_SIGNED:
             logging.info(f"Deal {deal_id}: Contract signed stage")
             set_contract_signed(deal_id)
-            message = msg_contract_signed(first_name)
-            send_viber(phone, message)
+            viber_msg, sms_msg = msg_contract_signed(first_name)
+            send_viber(phone, viber_msg, sms_msg)
 
         elif stage_id == STAGE_DELIVERY:
             logging.info(f"Deal {deal_id}: Delivery stage")
             set_delivery_notified(deal_id)
-            message = msg_delivery(first_name)
-            send_viber(phone, message)
+            viber_msg, sms_msg = msg_delivery(first_name)
+            send_viber(phone, viber_msg, sms_msg)
 
         elif stage_id == STAGE_WAITING_DOCS:
             logging.info(f"Deal {deal_id}: Waiting docs stage")
             set_docs_stage(deal_id)
-            message = msg_waiting_docs(first_name)
-            send_viber(phone, message)
+            viber_msg, sms_msg = msg_waiting_docs(first_name)
+            send_viber(phone, viber_msg, sms_msg)
 
         else:
             logging.info(f"Deal {deal_id}: Stage {stage_id} not handled")

@@ -15,8 +15,8 @@ def send_weekly_reminders():
     
     for deal_id, phone, name, last_reminder in deals:
         try:
-            message = msg_delivery_reminder(name or "Клиент")
-            success = send_viber(phone, message)
+            viber_msg, sms_msg = msg_delivery_reminder(name or "Клиент")
+            success = send_viber(phone, viber_msg, sms_msg)
             if success:
                 update_reminder_time(deal_id)
                 logging.info(f"Reminder sent for deal {deal_id}")
@@ -30,7 +30,7 @@ def start_scheduler():
     scheduler = BackgroundScheduler(timezone="Europe/Minsk")
     scheduler.add_job(
         send_weekly_reminders,
-        CronTrigger(hour=10, minute=0),  # Every day at 10:00 Minsk time
+        CronTrigger(hour=10, minute=0),
         id="weekly_reminders",
         replace_existing=True
     )
