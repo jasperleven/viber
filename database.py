@@ -20,9 +20,15 @@ def init_db():
             contract_signed_at TIMESTAMP,
             delivery_notified INTEGER DEFAULT 0,
             last_reminder_at TIMESTAMP,
+            cancelled INTEGER DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    # Добавляем колонку cancelled если её нет (для существующих БД)
+    try:
+        cursor.execute("ALTER TABLE deals ADD COLUMN cancelled INTEGER DEFAULT 0")
+    except Exception:
+        pass
     conn.commit()
     conn.close()
     logging.info("Database initialized")
@@ -82,6 +88,16 @@ def set_docs_stage(deal_id: str):
     conn.commit()
     conn.close()
 
+def set_cancelled(deal_id: str):
+    """Mark deal as cancelled"""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE deals SET stage='cancelled', cancelled=1 WHERE deal_id=?
+    """, (deal_id,))
+    conn.commit()
+    conn.close()
+
 def get_deals_for_reminder(days: int) -> list:
     """Get deals that need weekly reminder"""
     conn = sqlite3.connect(DB_PATH)
@@ -91,6 +107,7 @@ def get_deals_for_reminder(days: int) -> list:
         SELECT deal_id, phone, name, last_reminder_at FROM deals
         WHERE stage='contract_signed'
         AND delivery_notified=0
+        AND cancelled=0
         AND (
             last_reminder_at IS NULL 
             OR (julianday('now') - julianday(last_reminder_at)) >= ?

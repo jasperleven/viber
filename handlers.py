@@ -1,16 +1,18 @@
 import logging
 import requests
 from config import STAGE_CONTRACT_SIGNED, STAGE_DELIVERY, STAGE_WAITING_DOCS, AMOCRM_DOMAIN, AMOCRM_TOKEN
-from database import upsert_deal, set_contract_signed, set_delivery_notified, set_docs_stage
+from database import upsert_deal, set_contract_signed, set_delivery_notified, set_docs_stage, set_cancelled
 from viber import send_viber
-from messages import msg_contract_signed, msg_delivery, msg_delivery_vozim, msg_waiting_docs
+from messages import msg_contract_signed, msg_delivery, msg_delivery_vozim, msg_waiting_docs, COMPLAINT_PHONE_SV
 
 FIELD_CARRIER = 1099861    # "Кто перевозчик? X"
 FIELD_ORDER_NUM = 1099863  # "Номер заявки"
+FIELD_LEGAL = 1095801      # "Юр. Лицо"
+STAGE_CANCELLED = "143"    # "Закрыто и не реализовано"
 
 
 def get_contact_by_deal(deal_id: str):
-    """Получить телефон, имя контакта, перевозчика и номер заявки по ID сделки"""
+    """Получить телефон, имя контакта, перевозчика, номер заявки и юр. лицо"""
     headers = {
         "Authorization": f"Bearer {AMOCRM_TOKEN}",
         "Content-Type": "application/json"
@@ -23,13 +25,13 @@ def get_contact_by_deal(deal_id: str):
 
         if deal_resp.status_code != 200:
             logging.error(f"Failed to get deal {deal_id}: {deal_resp.status_code}")
-            return None, None, None, None
+            return None, None, None, None, None
 
         deal_data = deal_resp.json()
 
-        # Получаем перевозчика и номер заявки из полей сделки
         carrier = None
         order_num = None
+        legal = None
         for field in deal_data.get("custom_fields_values", []) or []:
             fid = field.get("field_id")
             values = field.get("values", [])
@@ -39,13 +41,15 @@ def get_contact_by_deal(deal_id: str):
                 carrier = values[0].get("value", "")
             elif fid == FIELD_ORDER_NUM:
                 order_num = values[0].get("value", "")
+            elif fid == FIELD_LEGAL:
+                legal = values[0].get("value", "")
 
-        logging.info(f"Deal {deal_id}: carrier={carrier}, order_num={order_num}")
+        logging.info(f"Deal {deal_id}: carrier={carrier}, order_num={order_num}, legal={legal}")
 
         contacts = deal_data.get("_embedded", {}).get("contacts", [])
         if not contacts:
             logging.warning(f"No contacts found for deal {deal_id}")
-            return None, None, carrier, order_num
+            return None, None, carrier, order_num, legal
 
         contact_id = contacts[0]["id"]
 
@@ -55,7 +59,7 @@ def get_contact_by_deal(deal_id: str):
 
         if contact_resp.status_code != 200:
             logging.error(f"Failed to get contact {contact_id}: {contact_resp.status_code}")
-            return None, None, carrier, order_num
+            return None, None, carrier, order_num, legal
 
         contact_data = contact_resp.json()
 
@@ -72,11 +76,11 @@ def get_contact_by_deal(deal_id: str):
                     break
 
         logging.info(f"Got contact for deal {deal_id}: name={first_name}, phone={phone}")
-        return first_name, phone, carrier, order_num
+        return first_name, phone, carrier, order_num, legal
 
     except Exception as e:
         logging.error(f"Error getting contact for deal {deal_id}: {e}", exc_info=True)
-        return None, None, None, None
+        return None, None, None, None, None
 
 
 async def handle_webhook(data: dict):
@@ -108,18 +112,28 @@ async def handle_webhook(data: dict):
             logging.warning("Missing deal_id or stage_id, skipping")
             return
 
-        first_name, phone, carrier, order_num = get_contact_by_deal(deal_id)
+        # Если сделка аннулирована — помечаем и не отправляем
+        if stage_id == STAGE_CANCELLED:
+            logging.info(f"Deal {deal_id}: Cancelled, stopping notifications")
+            set_cancelled(deal_id)
+            return
+
+        first_name, phone, carrier, order_num, legal = get_contact_by_deal(deal_id)
 
         if not phone:
             logging.warning(f"No phone found for deal {deal_id}, skipping")
             return
+
+        # Определяем телефон в зависимости от юр. лица
+        is_sv = legal and "синий" in legal.lower()
+        complaint_phone = COMPLAINT_PHONE_SV if is_sv else None
 
         upsert_deal(deal_id, phone, first_name, stage_id)
 
         if stage_id == STAGE_CONTRACT_SIGNED:
             logging.info(f"Deal {deal_id}: Contract signed stage")
             set_contract_signed(deal_id)
-            viber_msg, sms_msg = msg_contract_signed(first_name)
+            viber_msg, sms_msg = msg_contract_signed(first_name, complaint_phone)
             send_viber(phone, viber_msg, sms_msg)
 
         elif stage_id == STAGE_DELIVERY:
@@ -128,13 +142,13 @@ async def handle_webhook(data: dict):
             if carrier and "ВОЗИМ" in carrier.upper():
                 viber_msg, sms_msg = msg_delivery_vozim(first_name, order_num or "")
             else:
-                viber_msg, sms_msg = msg_delivery(first_name)
+                viber_msg, sms_msg = msg_delivery(first_name, complaint_phone)
             send_viber(phone, viber_msg, sms_msg)
 
         elif stage_id == STAGE_WAITING_DOCS:
             logging.info(f"Deal {deal_id}: Waiting docs stage")
             set_docs_stage(deal_id)
-            viber_msg, sms_msg = msg_waiting_docs(first_name)
+            viber_msg, sms_msg = msg_waiting_docs(first_name, complaint_phone)
             send_viber(phone, viber_msg, sms_msg)
 
         else:
