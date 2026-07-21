@@ -1,9 +1,9 @@
 import logging
 import requests
-from config import STAGE_CONTRACT_SIGNED, STAGE_DELIVERY, STAGE_WAITING_DOCS, AMOCRM_DOMAIN, AMOCRM_TOKEN
+from config import STAGE_CONTRACT_SIGNED, STAGE_DELIVERY, STAGE_WAITING_DOCS, AMOCRM_DOMAIN, AMOCRM_TOKEN, COMPLAINT_PHONE_SV, CONDITIONS_URL_SV
 from database import upsert_deal, set_contract_signed, set_delivery_notified, set_docs_stage, set_cancelled
 from viber import send_viber
-from messages import msg_contract_signed, msg_delivery, msg_delivery_vozim, msg_waiting_docs, COMPLAINT_PHONE_SV
+from messages import msg_contract_signed, msg_delivery, msg_delivery_vozim, msg_waiting_docs
 
 FIELD_CARRIER = 1099861    # "Кто перевозчик? X"
 FIELD_ORDER_NUM = 1099863  # "Номер заявки"
@@ -124,16 +124,17 @@ async def handle_webhook(data: dict):
             logging.warning(f"No phone found for deal {deal_id}, skipping")
             return
 
-        # Определяем телефон в зависимости от юр. лица
+        # Определяем телефон и ссылку в зависимости от юр. лица
         is_sv = legal and "синий" in legal.lower()
         complaint_phone = COMPLAINT_PHONE_SV if is_sv else None
+        conditions_url = CONDITIONS_URL_SV if is_sv else None
 
         upsert_deal(deal_id, phone, first_name, stage_id)
 
         if stage_id == STAGE_CONTRACT_SIGNED:
-            logging.info(f"Deal {deal_id}: Contract signed stage")
+            logging.info(f"Deal {deal_id}: Contract signed stage, is_sv={is_sv}")
             set_contract_signed(deal_id)
-            viber_msg, sms_msg = msg_contract_signed(first_name, complaint_phone)
+            viber_msg, sms_msg = msg_contract_signed(first_name, complaint_phone, conditions_url)
             send_viber(phone, viber_msg, sms_msg)
 
         elif stage_id == STAGE_DELIVERY:
@@ -146,7 +147,7 @@ async def handle_webhook(data: dict):
             send_viber(phone, viber_msg, sms_msg)
 
         elif stage_id == STAGE_WAITING_DOCS:
-            logging.info(f"Deal {deal_id}: Waiting docs stage")
+            logging.info(f"Deal {deal_id}: Waiting docs stage, is_sv={is_sv}")
             set_docs_stage(deal_id)
             viber_msg, sms_msg = msg_waiting_docs(first_name, complaint_phone)
             send_viber(phone, viber_msg, sms_msg)

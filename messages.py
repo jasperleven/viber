@@ -1,22 +1,20 @@
 from config import COMPLAINT_PHONE, CONDITIONS_URL
 
-COMPLAINT_PHONE_SV = "+375 (44) 540-79-97"  # Синий ветер
-
-def msg_contract_signed(name: str, phone=None) -> str:
+def msg_contract_signed(name: str, phone=None, url=None) -> str:
     p = phone or COMPLAINT_PHONE
+    u = url or CONDITIONS_URL
     viber = (
         f"👋 Доброго времени суток, {name}, поздравляем с отличной покупкой!\n\n"
         f"✅ Заявка успешно оформлена. Ваш заказ передан в сборку. "
         f"Ожидайте сообщение о планируемой дате доставки.\n\n"
         f"С заботой о Вас, интернет-магазин ТехноВейв.\n"
         f"По всем вопросам обращаться по номеру: {p}\n"
-        f"Ознакомиться с условиями работы: {CONDITIONS_URL}"
+        f"Ознакомиться с условиями работы: {u}"
     )
-    sms = f"🎉 {name}, поздравляем! Заказ в сборке, ждите дату доставки. С заботой, ТехноВейв. Вопросы {p}. {CONDITIONS_URL}"
+    sms = f"🎉 {name}, поздравляем! Заказ в сборке, ждите дату доставки. С заботой, ТехноВейв. Вопросы {p}. {u}"
     return viber, sms
 
 def msg_delivery_reminder(name: str, phone=None) -> str:
-    p = phone or COMPLAINT_PHONE
     viber = (
         f"Здраствуйте, {name} 👋\n\n"
         f"Благодарим за ожидание, заказ обязательно будет доставлен. "

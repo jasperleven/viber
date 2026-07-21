@@ -13,8 +13,12 @@ STAGE_DELIVERY = "85411634"          # Доставка товара
 STAGE_WAITING_DOCS = "85398474"      # Ожидаем документы
 
 # Message settings
-COMPLAINT_PHONE = "+375 (29) 102-78-85"
-CONDITIONS_URL = "https://technowave.by/of"
+COMPLAINT_PHONE = "+375 (29) 102-78-85"       # Артагед
+CONDITIONS_URL = "https://technowave.by/of"   # Артагед
+
+COMPLAINT_PHONE_SV = "+375 (44) 540-79-97"    # Синий ветер
+CONDITIONS_URL_SV = "https://salesmarket.by/of"  # Синий ветер
+
 SENDER_NAME = "texnowaveby"
 
 # Viber route: сначала Viber 24 часа, потом SMS
