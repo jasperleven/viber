@@ -1,11 +1,38 @@
+import os
+from pathlib import Path
+
+# Секреты не хранятся в коде: они лежат в файле .env рядом с этим файлом
+# (/opt/viber_bot/.env на сервере) или в переменных окружения сервиса.
+
+
+def _load_env_file(path=Path(__file__).resolve().with_name(".env")):
+    if not path.exists():
+        return
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+def _required(name):
+    value = os.environ.get(name, "").strip()
+    if not value:
+        raise RuntimeError(f"Не задан {name}: добавь его в файл .env рядом с config.py")
+    return value
+
+
+_load_env_file()
+
 # SMS Traffic credentials
-SMSTRAFFIC_LOGIN = "artagedby"
-SMSTRAFFIC_PASSWORD = "b1DVlzeE"
+SMSTRAFFIC_LOGIN = _required("SMSTRAFFIC_LOGIN")
+SMSTRAFFIC_PASSWORD = _required("SMSTRAFFIC_PASSWORD")
 SMSTRAFFIC_URL = "https://sds.smstraffic.by/smartdelivery-in/multi.php"
 
 # AmoCRM settings
-AMOCRM_DOMAIN = "daangrah000.amocrm.ru"
-AMOCRM_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImFiNjY0MjhmOTE4ODE1OGNjODc4NzQ2YjBkMDM2ZjYzMTEwOGU1M2Q0ZjMwNmM3YWUzOGQxMDBiZmRmMzY2YjUxNDZlOTdhNjlhMTIzNjYyIn0.eyJhdWQiOiI3Y2NlNDZhYy0zZjdmLTQwMzItYjJhNS01OTY1Yzc1ZTc0MzUiLCJqdGkiOiJhYjY2NDI4ZjkxODgxNThjYzg3ODc0NmIwZDAzNmY2MzExMDhlNTNkNGYzMDZjN2FlMzhkMTAwYmZkZjM2NmI1MTQ2ZTk3YTY5YTEyMzY2MiIsImlhdCI6MTc4MjI5NjI3OCwibmJmIjoxNzgyMjk2Mjc4LCJleHAiOjE5NDAwMjU2MDAsInN1YiI6IjExNDY3MjU4IiwiZ3JhbnRfdHlwZSI6IiIsImFjY291bnRfaWQiOjMxOTI4Mjk4LCJiYXNlX2RvbWFpbiI6ImFtb2NybS5ydSIsInZlcnNpb24iOjIsInNjb3BlcyI6WyJwdXNoX25vdGlmaWNhdGlvbnMiLCJmaWxlcyIsImNybSIsImZpbGVzX2RlbGV0ZSIsIm5vdGlmaWNhdGlvbnMiXSwiaGFzaF91dWlkIjoiZjQ4YmIyODctMjlkOC00ZDExLWIxMTYtODE5ODI1ZWZhYTE3IiwiYXBpX2RvbWFpbiI6ImFwaS1iLmFtb2NybS5ydSJ9.jw068He1FVO8ON3bUiI1LgUiItJWz2-QKSZHLh1_qo6yGuRKlzJiSSohCaxO_ExPjwHkRBJN82igtHWluXLzhGAJ9t9_GR80cxse-9yRenMv0gJ6MBlcYN3xoP76B-BG044z3ysbhY8XfNEk7fqLueQ-LCdN7yA1AYpp2M_lzHERrwnI-bvNnzv_kMsaL2O6QlsHSZtGwHibZvLer8jmFQheu1J5yzJ2NcMKE5GdGyJrKpOtZQMJVhpQKHLX_qVuB5nFLnF1KVhUkQwDMxWecaymeazI6h4WOn8RH0Y_mALpdJKBKvSAu1xFrqNPfO_Cu7vzSumL9iVvxJpbjUjYXQ"
+AMOCRM_DOMAIN = os.environ.get("AMOCRM_DOMAIN", "daangrah000.amocrm.ru")
+AMOCRM_TOKEN = _required("AMOCRM_TOKEN")
 
 # AmoCRM pipeline stage IDs
 STAGE_CONTRACT_SIGNED = "69561406"   # Договор подписан
